@@ -7,7 +7,9 @@
     "dev": "nodemon api.js",
     "start" : "node api.js"
   },
-  "heroku-postbuild": "npm run build",
+  "engines": {
+    "node" : "16.15.1"
+  },
   "author": "",
   "license": "ISC",
   "description": "",
