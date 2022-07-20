@@ -6,6 +6,7 @@ var router = express.Router();
 var dboperations = require('./dboperations');
 const Product = require('./product');
 const User = require('./user');
+let port = process.env.PORT || 8090;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -17,6 +18,32 @@ router.use((request, response, next)=>{
     console.log('middleware');
     next();
 });
+
+router.route('/cart/:id').get((request, response) => {
+    dboperations.getCartById(request.params.id).then(result => {
+        response.json(result[0])
+    })
+})
+
+router.route('/carts').get((request, response) => {
+    dboperations.getAllCarts().then(result => {
+        response.json(result[0])
+    })
+})
+
+router.route('/cart/add/:userId/:productId/:quantity/:name/:image/:price/:instock').post((request, response) => {
+    dboperations.addProductToCart(request.params.userId, request.params.quantity, request.params.productId, request.params.name,
+        request.params.image, request.params.price, request.params.instock).then(result => {
+        response.status(201).json(result)
+    })
+})
+
+router.route('/cart/update/:userId/:productId/:quantity').patch((request, response) => {
+    dboperations.updateProductQuantityInCart(request.params.productId, request.params.userId, request.params.quantity)
+    .then(result => {
+        response.status(202).json(result)
+    })
+})
 
 router.route('/users').get((request, response) => {
     dboperations.getUsers().then(result => {
@@ -108,7 +135,5 @@ router.route('/product').patch((request, response) => {
     })
 });
 
-
-var port = process.env.PORT || 8090;
 app.listen(port);
 console.log('Product API is runnning at ' + port);

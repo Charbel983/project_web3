@@ -7,10 +7,6 @@
     "dev": "nodemon api.js",
     "start" : "node api.js"
   },
-  "engines": {
-    "node" : "16.x",
-    "npm" : "8.11.0"
-  },
   "author": "",
   "license": "ISC",
   "description": "",
@@ -23,5 +19,9 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
+  },
+  "engines": {
+    "node" : "16.x",
+    "npm" : "8.11.0"
   }
 }

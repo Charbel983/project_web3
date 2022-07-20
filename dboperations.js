@@ -161,14 +161,68 @@ async function addProduct(product) {
     try {
         let pool = await sql.connect(config);
         let insertProduct = await pool.request()
-            .input('name', sql.VarChar(255), product.name.toString())
-            .input('description', sql.VarChar(255), product.description.toString())
+            .input('name', sql.NVarChar(MAX), product.name.toString())
+            .input('description', sql.NVarChar(MAX), product.description.toString())
             .input('price', sql.Int, product.price)
-            .input('image', sql.VarChar(255), product.image.toString())
-            .input('tags', sql.VarChar(255), product.tags.toString())
+            .input('image', sql.NVarChar(MAX), product.image.toString())
+            .input('tags', sql.NVarChar(MAX), product.tags.toString())
             .input('inStock', sql.Bit, product.inStock)
             .query("insert into products (name, description, price, image, tags, inStock) values(@name, @description, @price, @image, @tags, @inStock)"); 
         return insertProduct.recordsets;
+    }catch(err){
+        console.log(err);
+    }
+}
+
+async function addProductToCart(userId, quantity, id, name, image, price, inStock){
+    try{
+        let pool = await sql.connect(config);
+        let addProduct = await pool.request().input('id', sql.Int, id)
+        .input('userId', sql.Int, userId)
+        .input('name', sql.NVarChar(MAX), name)
+        .input('image', sql.NVarChar(MAX), image)
+        .input('price', sql.Int, price)
+        .input('quantity', sql.Int, quantity)
+        .input('inStock', sql.Bit, inStock)
+        .query('insert into carts (productId, userId, productName, productImage, productPrice, productQuantity, productInStock) values(@id, @userId, @name, @image, @price, @quantity, @inStock)');
+
+        return addProduct.recordsets;
+    }catch(err){
+        console.log(err);
+    }
+}
+
+async function getCartById(userId){
+    try{
+        let pool = await sql.connect();
+        let cart = await pool.request().input('userId', sql.Int, userId)
+        .query('SELECT * from carts where userId = @userId');
+
+        return cart.recordsets;
+    }catch(err){
+        console.log(err);
+    }
+}
+
+async function getAllCarts(){
+    try{
+        let pool = await sql.connect();
+        let carts = await pool.request().query('SELECT * from carts')
+        return carts.recordsets;
+    }catch(err){
+        console.log(err);
+    }
+}
+
+async function updateProductQuantityInCart(productId, userId, quantity){
+    try{
+        let pool = await sql.connect(config);
+        let update = await pool.request().input('productId', sql.Int, productId)
+        .input('userId', sql.Int, userId)
+        .input('quantity', sql.Int, quantity)
+        .query('update carts set productQuantity = @quantity where productId = @productId and userId = @userId');
+
+        return update.recordsets;
     }catch(err){
         console.log(err);
     }
@@ -187,5 +241,9 @@ module.exports = {
     updateUser : updateUser,
     updateUserProfilePicture : updateUserProfilePicture,
     updateUserPassword : updateUserPassword,
-    deleteUser : deleteUser
+    deleteUser : deleteUser, 
+    addProductToCart : addProductToCart,
+    getCartById : getCartById,
+    updateProductQuantityInCart : updateProductQuantityInCart,
+    getAllCarts : getAllCarts
 }
